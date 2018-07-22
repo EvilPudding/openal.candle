@@ -13,7 +13,9 @@
 #include <AL/alc.h>
 #include <AL/alut.h>
 
-#define FILENAME "resauces/0.wav"
+/* #include "build/speaker.png.sauce.c" */
+extern unsigned char speaker_png[];
+extern unsigned int speaker_png_len;
 
 entity_t g_speaker = entity_null;
 
@@ -31,15 +33,16 @@ void c_speaker_init(c_speaker_t *self)
 	ALCenum error = alGetError(); if (error != AL_NO_ERROR) printf("error at %d\n", __LINE__);
 	c_speaker_update_position(self);
 
-
 	if(!g_speaker)
 	{
 		mat_t *m = mat_new("speaker");
+		m->albedo.texture = texture_from_memory(speaker_png, speaker_png_len);
+		m->albedo.texture_blend = 1.0f;
+		m->albedo.texture_scale = 1.0f;
 		mesh_t *mesh = mesh_new();
 		mesh_quad(mesh);
-		g_speaker = entity_new(c_node_new(), c_model_new(mesh, mat_new("speaker"), 0, 0));
+		g_speaker = entity_new(c_node_new(), c_model_new(mesh, m, 0, 0));
 		c_node(&g_speaker)->ghost = 1;
-		c_model(&g_speaker)->xray = 1;
 	}
 }
 

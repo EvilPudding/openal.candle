@@ -56,7 +56,7 @@ void c_openal_init(c_openal_t *self)
     LOAD_PROC(self->device, alcResetDeviceSOFT);
 #undef LOAD_PROC
 
-/* Enumerate available HRTFs, and reset the device using one. */
+	/* Enumerate available HRTFs, and reset the device using one. */
 	ALCint num_hrtf;
 	/* const char *hrtfname = "default-48000"; */
 	const char *hrtfname = NULL;
