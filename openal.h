@@ -1,7 +1,7 @@
 #ifndef OPENAL_H
 #define OPENAL_H
 
-#include <ecm.h>
+#include <ecs/ecm.h>
 
 typedef struct c_openal_t
 {

@@ -1,7 +1,7 @@
 #ifndef SPEAKER_H
 #define SPEAKER_H
 
-#include <ecm.h>
+#include <ecs/ecm.h>
 #include "sound.h"
 
 typedef struct c_speaker_t

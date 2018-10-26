@@ -1,7 +1,7 @@
 #ifndef SOUND_H
 #define SOUND_H
 
-#include <ecm.h>
+#include <ecs/ecm.h>
 
 typedef struct
 {
