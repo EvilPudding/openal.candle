@@ -3,11 +3,13 @@
 
 #include <ecs/ecm.h>
 #include "sound.h"
+#include <utils/drawable.h>
 
 typedef struct c_speaker_t
 {
 	c_t super;
 	unsigned int source;
+	drawable_t draw;
 } c_speaker_t;
 
 DEF_CASTER("speaker", c_speaker, c_speaker_t)
