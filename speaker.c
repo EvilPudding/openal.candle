@@ -36,15 +36,16 @@ void c_speaker_init(c_speaker_t *self)
 		g_speaker_mat = mat_new("speaker");
 		g_speaker_mat->albedo.texture = texture_from_memory(speaker_png, speaker_png_len);
 		g_speaker_mat->albedo.blend = 1.0f;
-		g_speaker_mat->albedo.scale = 1.0f;
+		g_speaker_mat->emissive.color = vec4(0.4, 0.6, 0.8, 1.0f);
 	}
 
-	drawable_init(&self->draw, 0, NULL);
-	drawable_set_vs(&self->draw, g_sprite_vs);
+	drawable_init(&self->draw, ref("transparent"), NULL);
+	drawable_add_group(&self->draw, ref("selectable"));
+	drawable_set_vs(&self->draw, sprite_vs());
 	drawable_set_mat(&self->draw, g_speaker_mat->id);
 	drawable_set_entity(&self->draw, c_entity(self));
 	drawable_set_xray(&self->draw, 1);
-	drawable_set_mesh(&self->draw, g_sprite_mesh);
+	drawable_set_mesh(&self->draw, sprite_mesh());
 
 	c_speaker_update_position(self);
 }
