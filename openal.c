@@ -110,19 +110,20 @@ void c_openal_init(c_openal_t *self)
 	sauces_loader(ref("wav"), sound_loader);
 }
 
+void c_openal_set_listener(c_openal_t *self, entity_t listener)
+{
+	self->listener = listener;
+}
+
 int c_openal_update(c_openal_t *self)
 {
-	ct_t *cameras = ecm_get(ref("camera"));
-	c_camera_t *camera = (c_camera_t*)ct_get_nth(cameras, 0);
-	if(!camera) return CONTINUE;
-	c_node_t *nc = c_node(camera);
-	c_node_update_model(nc);
+	if(!entity_exists(self->listener)) return CONTINUE;
+	c_node_t *nc = c_node(&self->listener);
+	if(!nc) return CONTINUE;
 
-	vec3_t pos = mat4_mul_vec4(nc->model, vec4(0.0f, 0.0f, 0.0f, 1.0f)).xyz;
-	vec3_t at = vec3_norm(mat4_mul_vec4(nc->model,
-				vec4(0.0f, 0.0f, -1.0f, 0.0f)).xyz);
-	vec3_t up = vec3_norm(mat4_mul_vec4(nc->model,
-				vec4(0.0f, 1.0f, 0.0f, 0.0f)).xyz);
+	vec3_t pos = c_node_local_to_global(nc, Z3);
+	vec3_t at = c_node_dir_to_global(nc, vec3(0.0f, 0.0f, -1.0f));
+	vec3_t up = c_node_dir_to_global(nc, vec3(0.0f, 1.0f, 0.0f));
 
 	ALfloat listenerOri[] = { at.x, at.y, at.z, up.x, up.y, up.z };
 	alListener3f(AL_POSITION, pos.x, pos.y, pos.z);

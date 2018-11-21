@@ -5,6 +5,7 @@
 #include <utils/drawable.h>
 #include <components/sprite.h>
 #include <components/node.h>
+#include <systems/editmode.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,8 +19,10 @@ extern unsigned char speaker_png[];
 extern unsigned int speaker_png_len;
 
 static int c_speaker_update_position(c_speaker_t *self);
+static int c_speaker_editmode_toggle(c_speaker_t *self);
 
 static mat_t *g_speaker_mat;
+
 void c_speaker_init(c_speaker_t *self)
 {
 	alGenSources((ALuint)1, &self->source);
@@ -45,7 +48,8 @@ void c_speaker_init(c_speaker_t *self)
 	drawable_set_mat(&self->draw, g_speaker_mat->id);
 	drawable_set_entity(&self->draw, c_entity(self));
 	drawable_set_xray(&self->draw, 1);
-	drawable_set_mesh(&self->draw, sprite_mesh());
+
+	c_speaker_editmode_toggle(self);
 
 	c_speaker_update_position(self);
 }
@@ -120,13 +124,31 @@ c_speaker_t *c_speaker_new()
 
 c_speaker_t *c_speaker_destroy(c_speaker_t *self)
 {
+	drawable_set_mesh(&self->draw, NULL);
 	alDeleteSources(1, &self->source);
+}
+
+static int c_speaker_editmode_toggle(c_speaker_t *self)
+{
+	c_editmode_t *edit = c_editmode(&SYS);
+	if(!edit) return CONTINUE;
+
+	if(edit->control)
+	{
+		drawable_set_mesh(&self->draw, sprite_mesh());
+	}
+	else
+	{
+		drawable_set_mesh(&self->draw, NULL);
+	}
+	return CONTINUE;
 }
 
 REG()
 {
 	ct_t *ct = ct_new("speaker", sizeof(c_speaker_t), c_speaker_init,
 			c_speaker_destroy, 1, ref("node"));
+	ct_listener(ct, WORLD, sig("editmode_toggle"), c_speaker_editmode_toggle);
 	ct_listener(ct, ENTITY, sig("node_changed"), c_speaker_update_position);
 }
 
