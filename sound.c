@@ -5,7 +5,7 @@
 
 #include <AL/al.h>
 #include <AL/alc.h>
-#include <AL/alut.h>
+#include "alut.h"
 
 sound_t *sound_new()
 {

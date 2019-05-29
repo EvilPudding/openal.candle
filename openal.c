@@ -10,12 +10,16 @@
 
 #include <AL/al.h>
 #include <AL/alc.h>
-#include <AL/alut.h>
+#include "alut.h"
+#ifndef __EMSCRIPTEN__
 #include <AL/alext.h>
+#endif
 
 
+#ifndef __EMSCRIPTEN__
 static LPALCGETSTRINGISOFT alcGetStringiSOFT;
 static LPALCRESETDEVICESOFT alcResetDeviceSOFT;
+#endif
 
 void *sound_loader(const char *path, const char *name, uint ext)
 {
@@ -46,6 +50,7 @@ void c_openal_init(c_openal_t *self)
 
 	alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED);
 
+#ifndef __EMSCRIPTEN__
 	if(!alcIsExtensionPresent(self->device, "ALC_SOFT_HRTF"))
 	{
 		fprintf(stderr, "Error: ALC_SOFT_HRTF not supported\n");
@@ -106,6 +111,7 @@ void c_openal_init(c_openal_t *self)
 		const ALchar *name = alcGetString(self->device, ALC_HRTF_SPECIFIER_SOFT);
 		printf("HRTF enabled, using %s\n", name);
 	}
+#endif
 
 	sauces_loader(ref("wav"), sound_loader);
 }
@@ -121,7 +127,7 @@ int c_openal_update(c_openal_t *self)
 	c_node_t *nc = c_node(&self->listener);
 	if(!nc) return CONTINUE;
 
-	vec3_t pos = c_node_local_to_global(nc, Z3);
+	vec3_t pos = c_node_pos_to_global(nc, Z3);
 	vec3_t at = c_node_dir_to_global(nc, vec3(0.0f, 0.0f, -1.0f));
 	vec3_t up = c_node_dir_to_global(nc, vec3(0.0f, 1.0f, 0.0f));
 
