@@ -67,19 +67,19 @@ void c_speaker_set_pitch(c_speaker_t *self, float pitch)
 	ALCenum error = alGetError(); if (error != AL_NO_ERROR) printf("error at %d\n", __LINE__);
 }
 
-static int c_speaker_update(c_speaker_t *self)
-{
-	if (self->playing)
-	{
-		float val = sound_get_value(self->playing, c_speaker_get_byte_offset(self));
-		c_spatial_t *sp = c_spatial(self);
-		c_spatial_lock(sp);
-		c_spatial_set_pos(sp, vec3(0, pow(val, 2) * 2.0, 0));
-		c_spatial_set_rot(sp, 0, 0, 1, pow(val, 3.0));
-		c_spatial_scale(sp, vec3(1, 1.0 - sin(val * 10.0) * 0.004, 1.0));
-		c_spatial_unlock(sp);
-	}
-}
+/* static int c_speaker_update(c_speaker_t *self) */
+/* { */
+/* 	if (self->playing) */
+/* 	{ */
+/* 		float val = sound_get_value(self->playing, c_speaker_get_byte_offset(self)); */
+/* 		c_spatial_t *sp = c_spatial(self); */
+/* 		c_spatial_lock(sp); */
+/* 		c_spatial_set_pos(sp, vec3(0, pow(val, 2) * 2.0, 0)); */
+/* 		c_spatial_set_rot(sp, 0, 0, 1, pow(val, 3.0)); */
+/* 		c_spatial_scale(sp, vec3(1, 1.0 - sin(val * 10.0) * 0.004, 1.0)); */
+/* 		c_spatial_unlock(sp); */
+/* 	} */
+/* } */
 
 static int c_speaker_update_position(c_speaker_t *self)
 {
@@ -196,7 +196,7 @@ REG()
 	ct_t *ct = ct_new("speaker", sizeof(c_speaker_t), c_speaker_init,
 			c_speaker_destroy, 1, ref("node"));
 	ct_listener(ct, WORLD, sig("editmode_toggle"), c_speaker_editmode_toggle);
-	ct_listener(ct, WORLD, sig("world_update"), c_speaker_update);
+	/* ct_listener(ct, WORLD, sig("world_update"), c_speaker_update); */
 	ct_listener(ct, ENTITY, sig("node_changed"), c_speaker_update_position);
 }
 
