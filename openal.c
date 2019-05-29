@@ -121,7 +121,7 @@ int c_openal_update(c_openal_t *self)
 	c_node_t *nc = c_node(&self->listener);
 	if(!nc) return CONTINUE;
 
-	vec3_t pos = c_node_local_to_global(nc, Z3);
+	vec3_t pos = c_node_pos_to_global(nc, Z3);
 	vec3_t at = c_node_dir_to_global(nc, vec3(0.0f, 0.0f, -1.0f));
 	vec3_t up = c_node_dir_to_global(nc, vec3(0.0f, 1.0f, 0.0f));
 
