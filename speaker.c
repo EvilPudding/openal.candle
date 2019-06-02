@@ -10,16 +10,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <AL/al.h>
-#include <AL/alc.h>
-#include <AL/alut.h>
+#include <alc.h>
+#include <al.h>
 
 /* #include "build/speaker.png.sauce.c" */
 extern unsigned char speaker_png[];
 extern unsigned int speaker_png_len;
 
-static int c_speaker_update_position(c_speaker_t *self);
-static int c_speaker_editmode_toggle(c_speaker_t *self);
+static int32_t c_speaker_update_position(c_speaker_t *self);
+static int32_t c_speaker_editmode_toggle(c_speaker_t *self);
 
 static mat_t *g_speaker_mat;
 
@@ -66,7 +65,7 @@ void c_speaker_set_pitch(c_speaker_t *self, float pitch)
 	ALCenum error = alGetError(); if (error != AL_NO_ERROR) printf("error at %d\n", __LINE__);
 }
 
-static int c_speaker_update_position(c_speaker_t *self)
+static int32_t c_speaker_update_position(c_speaker_t *self)
 {
 	c_node_t *nc = c_node(self);
 	c_node_update_model(nc);
@@ -100,10 +99,13 @@ void c_speaker_stop(c_speaker_t *self)
 
 }
 
-void c_speaker_play(c_speaker_t *self, sound_t *sound, int loop)
+void c_speaker_play(c_speaker_t *self, sound_t *sound, int32_t loop)
 {
 	if(!sound) return;
 	ALCenum error;
+
+	alSourceStop(self->source);
+	error = alGetError(); if (error != AL_NO_ERROR) printf("error at %d\n", __LINE__);
 
 	alSourcei(self->source, AL_LOOPING, loop);
 	error = alGetError(); if (error != AL_NO_ERROR) printf("error at %d\n", __LINE__);
@@ -128,7 +130,7 @@ c_speaker_t *c_speaker_destroy(c_speaker_t *self)
 	alDeleteSources(1, &self->source);
 }
 
-static int c_speaker_editmode_toggle(c_speaker_t *self)
+static int32_t c_speaker_editmode_toggle(c_speaker_t *self)
 {
 	c_editmode_t *edit = c_editmode(&SYS);
 	if(!edit) return CONTINUE;

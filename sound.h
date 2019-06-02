@@ -5,10 +5,10 @@
 
 typedef struct
 {
-	unsigned int buffer;
-	int size;
+	uint32_t buffer;
+	int32_t size;
 	float freq;
-	int format;
+	uint32_t format;
 	void *data;
 } sound_t;
 

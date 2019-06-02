@@ -3,9 +3,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <AL/al.h>
-#include <AL/alc.h>
-#include <AL/alut.h>
+#include <alc.h>
+#include <al.h>
+#include "alut.h"
 
 sound_t *sound_new()
 {

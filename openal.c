@@ -8,16 +8,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <AL/al.h>
-#include <AL/alc.h>
-#include <AL/alut.h>
-#include <AL/alext.h>
+#include <alc.h>
+#include <al.h>
+#include "alut.h"
 
+//static LPALCGETSTRINGISOFT alcGetStringiSOFT;
+//static LPALCRESETDEVICESOFT alcResetDeviceSOFT;
 
-static LPALCGETSTRINGISOFT alcGetStringiSOFT;
-static LPALCRESETDEVICESOFT alcResetDeviceSOFT;
-
-void *sound_loader(const char *path, const char *name, uint ext)
+void *sound_loader(const char *path, const char *name, uint32_t ext)
 {
 	sound_t *sound = sound_new();
 	sound_load(sound, path);
@@ -42,70 +40,9 @@ void c_openal_init(c_openal_t *self)
 		printf("Could not create al context.\n");
 		return;
 	}
-	alutInit(0, NULL);
+	alutInitWithoutContext(0, NULL);
 
 	alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED);
-
-	if(!alcIsExtensionPresent(self->device, "ALC_SOFT_HRTF"))
-	{
-		fprintf(stderr, "Error: ALC_SOFT_HRTF not supported\n");
-		exit(1);
-	}
-#define LOAD_PROC(d, x)  ((x) = alcGetProcAddress((d), #x))
-    LOAD_PROC(self->device, alcGetStringiSOFT);
-    LOAD_PROC(self->device, alcResetDeviceSOFT);
-#undef LOAD_PROC
-
-	/* Enumerate available HRTFs, and reset the device using one. */
-	ALCint num_hrtf;
-	/* const char *hrtfname = "default-48000"; */
-	const char *hrtfname = NULL;
-	ALCint hrtf_state;
-
-    alcGetIntegerv(self->device, ALC_NUM_HRTF_SPECIFIERS_SOFT, 1, &num_hrtf);
-
-    if(!num_hrtf) printf("No HRTFs found\n");
-    else
-    {
-        ALCint attr[5];
-        ALCint index = -1;
-        ALCint i;
-
-        printf("Available HRTFs:\n");
-        for(i = 0; i < num_hrtf; i++)
-        {
-            const ALCchar *name = alcGetStringiSOFT(self->device, ALC_HRTF_SPECIFIER_SOFT, i);
-            printf("    %d: %s\n", i, name);
-
-            if(hrtfname && strcmp(name, hrtfname) == 0) index = i;
-        }
-
-        i = 0;
-        attr[i++] = ALC_HRTF_SOFT;
-        attr[i++] = ALC_TRUE;
-        if(index == -1)
-        {
-            if(hrtfname) printf("HRTF \"%s\" not found\n", hrtfname);
-            printf("Using default HRTF...\n");
-        }
-        else
-        {
-            printf("Selecting HRTF %d...\n", index);
-            attr[i++] = ALC_HRTF_ID_SOFT;
-            attr[i++] = index;
-        }
-        attr[i] = 0;
-
-        if(!alcResetDeviceSOFT(self->device, attr))
-            printf("Failed to reset device: %s\n", alcGetString(self->device, alcGetError(self->device)));
-	}
-	alcGetIntegerv(self->device, ALC_HRTF_SOFT, 1, &hrtf_state);
-	if(!hrtf_state) printf("HRTF not enabled!\n");
-	else
-	{
-		const ALchar *name = alcGetString(self->device, ALC_HRTF_SPECIFIER_SOFT);
-		printf("HRTF enabled, using %s\n", name);
-	}
 
 	sauces_loader(ref("wav"), sound_loader);
 }

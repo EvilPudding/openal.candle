@@ -8,7 +8,7 @@
 typedef struct c_speaker_t
 {
 	c_t super;
-	unsigned int source;
+	uint32_t source;
 	drawable_t draw;
 } c_speaker_t;
 
@@ -16,6 +16,6 @@ DEF_CASTER("speaker", c_speaker, c_speaker_t)
 
 c_speaker_t *c_speaker_new(void);
 
-void c_speaker_play(c_speaker_t *self, sound_t *sound, int loop);
+void c_speaker_play(c_speaker_t *self, sound_t *sound, int32_t loop);
 
 #endif /* !SPEAKER_H */
