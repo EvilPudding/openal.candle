@@ -10,12 +10,14 @@ typedef struct c_speaker_t
 	c_t super;
 	uint32_t source;
 	drawable_t draw;
+	sound_t *playing;
 } c_speaker_t;
 
 DEF_CASTER("speaker", c_speaker, c_speaker_t)
 
 c_speaker_t *c_speaker_new(void);
 
-void c_speaker_play(c_speaker_t *self, sound_t *sound, int32_t loop);
+void c_speaker_play(c_speaker_t *self, sound_t *sound, bool_t loop);
+int32_t c_speaker_get_byte_offset(c_speaker_t *self);
 
 #endif /* !SPEAKER_H */

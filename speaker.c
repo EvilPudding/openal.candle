@@ -10,8 +10,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef WIN32
 #include <alc.h>
 #include <al.h>
+#else
+#include <AL/al.h>
+#include <AL/alc.h>
+#endif
+#include "alut.h"
 
 /* #include "build/speaker.png.sauce.c" */
 extern unsigned char speaker_png[];
@@ -35,16 +41,17 @@ void c_speaker_init(c_speaker_t *self)
 
 	if(!g_speaker_mat)
 	{
-		g_speaker_mat = mat_new("speaker");
-		g_speaker_mat->albedo.texture = texture_from_memory(speaker_png, speaker_png_len);
-		g_speaker_mat->albedo.blend = 1.0f;
-		g_speaker_mat->emissive.color = vec4(0.4, 0.6, 0.8, 1.0f);
+		g_speaker_mat = mat_new("speaker", "default");
+		mat1t(g_speaker_mat, ref("albedo.texture"),
+		      texture_from_memory(speaker_png, speaker_png_len));
+		mat1f(g_speaker_mat, ref("albedo.blend"), 1.0f);
+		mat4f(g_speaker_mat, ref("emissive.color"), vec4(0.4, 0.6, 0.8, 1.0f));
 	}
 
-	drawable_init(&self->draw, ref("transparent"), NULL);
+	drawable_init(&self->draw, ref("transparent"));
 	drawable_add_group(&self->draw, ref("selectable"));
 	drawable_set_vs(&self->draw, sprite_vs());
-	drawable_set_mat(&self->draw, g_speaker_mat->id);
+	drawable_set_mat(&self->draw, g_speaker_mat);
 	drawable_set_entity(&self->draw, c_entity(self));
 	drawable_set_xray(&self->draw, 1);
 
@@ -65,11 +72,25 @@ void c_speaker_set_pitch(c_speaker_t *self, float pitch)
 	ALCenum error = alGetError(); if (error != AL_NO_ERROR) printf("error at %d\n", __LINE__);
 }
 
+/* static int c_speaker_update(c_speaker_t *self) */
+/* { */
+/* 	if (self->playing) */
+/* 	{ */
+/* 		float val = sound_get_value(self->playing, c_speaker_get_byte_offset(self)); */
+/* 		c_spatial_t *sp = c_spatial(self); */
+/* 		c_spatial_lock(sp); */
+/* 		c_spatial_set_pos(sp, vec3(0, pow(val, 2) * 2.0, 0)); */
+/* 		c_spatial_set_rot(sp, 0, 0, 1, pow(val, 3.0)); */
+/* 		c_spatial_scale(sp, vec3(1, 1.0 - sin(val * 10.0) * 0.004, 1.0)); */
+/* 		c_spatial_unlock(sp); */
+/* 	} */
+/* } */
+
 static int32_t c_speaker_update_position(c_speaker_t *self)
 {
 	c_node_t *nc = c_node(self);
 	c_node_update_model(nc);
-	vec3_t p = c_node_local_to_global(nc, vec3(0, 0, 0));
+	vec3_t p = c_node_pos_to_global(nc, vec3(0, 0, 0));
 
 	alSource3f(self->source, AL_POSITION, p.x, p.y, p.z);
 	alSource3f(self->source, AL_VELOCITY, 0, 0, 0);
@@ -99,7 +120,17 @@ void c_speaker_stop(c_speaker_t *self)
 
 }
 
-void c_speaker_play(c_speaker_t *self, sound_t *sound, int32_t loop)
+int32_t c_speaker_get_byte_offset(c_speaker_t *self)
+{
+	int32_t offset = 0;
+	if (self->playing)
+	{
+		alGetSourcei(self->source, AL_BYTE_OFFSET, &offset);
+	}
+	return offset;
+}
+
+void c_speaker_play(c_speaker_t *self, sound_t *sound, bool_t loop)
 {
 	if(!sound) return;
 	ALCenum error;
@@ -112,9 +143,30 @@ void c_speaker_play(c_speaker_t *self, sound_t *sound, int32_t loop)
 
 	alSourcei(self->source, AL_BUFFER, sound->buffer);
 	error = alGetError(); if (error != AL_NO_ERROR) printf("error at %d\n", __LINE__);
+	/* switch(error) */
+	/* { */
+	/* 	case AL_INVALID_NAME: */
+	/* 		printf("invalid name\n"); */
+	/* 		break; */
+	/* 	case AL_INVALID_ENUM: */
+	/* 		printf("invalid enum\n"); */
+	/* 		break; */
+	/* 	case AL_INVALID_VALUE: */
+	/* 		printf("invalid value\n"); */
+	/* 		break; */
+	/* 	case AL_INVALID_OPERATION: */
+	/* 		printf("invalid operation\n"); */
+	/* 		break; */
+	/* 	case AL_OUT_OF_MEMORY: */
+	/* 		printf("out of mem\n"); */
+	/* 		break; */
+
+	/* } */
 
 	alSourcePlay(self->source);
 	error = alGetError(); if (error != AL_NO_ERROR) printf("error at %d\n", __LINE__);
+
+	self->playing = sound;
 }
 
 c_speaker_t *c_speaker_new()
@@ -124,7 +176,7 @@ c_speaker_t *c_speaker_new()
 	return self;
 }
 
-c_speaker_t *c_speaker_destroy(c_speaker_t *self)
+void c_speaker_destroy(c_speaker_t *self)
 {
 	drawable_set_mesh(&self->draw, NULL);
 	alDeleteSources(1, &self->source);
@@ -151,6 +203,7 @@ REG()
 	ct_t *ct = ct_new("speaker", sizeof(c_speaker_t), c_speaker_init,
 			c_speaker_destroy, 1, ref("node"));
 	ct_listener(ct, WORLD, sig("editmode_toggle"), c_speaker_editmode_toggle);
+	/* ct_listener(ct, WORLD, sig("world_update"), c_speaker_update); */
 	ct_listener(ct, ENTITY, sig("node_changed"), c_speaker_update_position);
 }
 
