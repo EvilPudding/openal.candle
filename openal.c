@@ -164,6 +164,6 @@ REG()
 	ct_t *ct = ct_new("openal", sizeof(c_openal_t), c_openal_init,
 			c_openal_destroy, 0);
 
-	ct_listener(ct, WORLD, sig("world_update"), c_openal_update);
+	ct_listener(ct, WORLD, 0, sig("world_update"), c_openal_update);
 }
 

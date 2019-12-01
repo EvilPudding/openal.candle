@@ -195,8 +195,8 @@ REG()
 {
 	ct_t *ct = ct_new("speaker", sizeof(c_speaker_t), c_speaker_init,
 			c_speaker_destroy, 1, ref("node"));
-	ct_listener(ct, WORLD, sig("editmode_toggle"), c_speaker_editmode_toggle);
-	/* ct_listener(ct, WORLD, sig("world_update"), c_speaker_update); */
-	ct_listener(ct, ENTITY, sig("node_changed"), c_speaker_update_position);
+	ct_listener(ct, WORLD, 0, sig("editmode_toggle"), c_speaker_editmode_toggle);
+	/* ct_listener(ct, WORLD, 0, sig("world_update"), c_speaker_update); */
+	ct_listener(ct, ENTITY, 0, sig("node_changed"), c_speaker_update_position);
 }
 
