@@ -10,16 +10,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef WIN32
+#include <alc.h>
+#include <al.h>
+#else
 #include <AL/al.h>
 #include <AL/alc.h>
+#endif
 #include "alut.h"
 
 /* #include "build/speaker.png.sauce.c" */
 extern unsigned char speaker_png[];
 extern unsigned int speaker_png_len;
 
-static int c_speaker_update_position(c_speaker_t *self);
-static int c_speaker_editmode_toggle(c_speaker_t *self);
+static int32_t c_speaker_update_position(c_speaker_t *self);
+static int32_t c_speaker_editmode_toggle(c_speaker_t *self);
 
 static mat_t *g_speaker_mat;
 
@@ -81,7 +86,7 @@ void c_speaker_set_pitch(c_speaker_t *self, float pitch)
 /* 	} */
 /* } */
 
-static int c_speaker_update_position(c_speaker_t *self)
+static int32_t c_speaker_update_position(c_speaker_t *self)
 {
 	c_node_t *nc = c_node(self);
 	c_node_update_model(nc);
@@ -130,6 +135,8 @@ void c_speaker_play(c_speaker_t *self, sound_t *sound, bool_t loop)
 	ALCenum error;
 
 	alSourceStop(self->source);
+	error = alGetError(); if (error != AL_NO_ERROR) printf("error at %d\n", __LINE__);
+
 	alSourcei(self->source, AL_LOOPING, loop);
 	alerr();
 
@@ -174,7 +181,7 @@ void c_speaker_destroy(c_speaker_t *self)
 	alDeleteSources(1, &self->source);
 }
 
-static int c_speaker_editmode_toggle(c_speaker_t *self)
+static int32_t c_speaker_editmode_toggle(c_speaker_t *self)
 {
 	c_editmode_t *edit = c_editmode(&SYS);
 	if(!edit) return CONTINUE;
@@ -195,7 +202,6 @@ REG()
 	ct_t *ct = ct_new("speaker", sizeof(c_speaker_t), (init_cb)c_speaker_init,
 			(destroy_cb)c_speaker_destroy, 1, ref("node"));
 	ct_listener(ct, WORLD, 0, sig("editmode_toggle"), c_speaker_editmode_toggle);
-	/* ct_listener(ct, WORLD, sig("world_update"), c_speaker_update); */
 	ct_listener(ct, ENTITY, 0, sig("node_changed"), c_speaker_update_position);
 }
 

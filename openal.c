@@ -8,20 +8,28 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef WIN32
+#include <alc.h>
+#include <al.h>
+#else
 #include <AL/al.h>
 #include <AL/alc.h>
+#endif
+
 #include "alut.h"
-#ifndef __EMSCRIPTEN__
+#if !defined(__EMSCRIPTEN__) && !defined(WIN32)
 #include <AL/alext.h>
 #endif
 
+//static LPALCGETSTRINGISOFT alcGetStringiSOFT;
+//static LPALCRESETDEVICESOFT alcResetDeviceSOFT;
 
-#ifndef __EMSCRIPTEN__
+#if !defined(__EMSCRIPTEN__) && !defined(WIN32)
 static LPALCGETSTRINGISOFT alcGetStringiSOFT;
 static LPALCRESETDEVICESOFT alcResetDeviceSOFT;
 #endif
 
-void *sound_loader(const char *path, const char *name, uint ext)
+void *sound_loader(const char *path, const char *name, uint32_t ext)
 {
 	sound_t *sound = sound_new();
 	sound_load(sound, path);
@@ -84,10 +92,11 @@ void c_openal_init(c_openal_t *self)
 		printf("Could not create al context.\n");
 		return;
 	}
-	alutInit(0, NULL);
+	alutInitWithoutContext(0, NULL);
 
 	alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED);
 
+#ifndef WIN32
 #ifndef __EMSCRIPTEN__
 	if(!alcIsExtensionPresent(self->device, "ALC_SOFT_HRTF"))
 	{
@@ -151,6 +160,7 @@ void c_openal_init(c_openal_t *self)
 	}
 #endif
 
+#endif
 	sauces_loader(ref("wav"), sound_loader);
 }
 
