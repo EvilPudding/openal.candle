@@ -28,10 +28,48 @@ void *sound_loader(const char *path, const char *name, uint ext)
 	return sound;
 }
 
+void _check_al_error(const char *file, int line)
+{
+	ALCenum err;
+	int got_error = 0;
+	char message[512];
+	static int count = 0;
+	static char last_error[512] = "";
+
+	err = alGetError();
+	while (err != AL_NO_ERROR) {
+		char *error = NULL;
+		switch(err)
+		{
+			case AL_INVALID_OPERATION: error="AL_INVALID_OPERATION"; break;
+			case AL_INVALID_NAME: error="AL_INVALID_NAME"; break;
+			case AL_INVALID_ENUM: error="AL_INVALID_ENUM"; break;
+			case AL_INVALID_VALUE: error="AL_INVALID_VALUE"; break;
+			case AL_OUT_OF_MEMORY: error = "AL_OUT_OF_MEMORY"; break;
+		}
+		snprintf(message, sizeof(message), "GL_%s - %s:%d", error, file, line);
+		if(!strncmp(last_error, message, sizeof(last_error)))
+		{
+			printf("\b\b\r%s%6d\n", message, ++count);
+		}
+		else
+		{
+			count = 0;
+			printf("%s\n", message);
+			strncpy(last_error, message, sizeof(last_error));
+		}
+		err = alGetError();
+		got_error = 1;
+	}
+	if(got_error)
+	{
+		__builtin_trap();
+		exit(1);
+	}
+}
 
 void c_openal_init(c_openal_t *self)
 {
-	ALCenum error;
 
 	self->device = alcOpenDevice(NULL);
 	if(!self->device)
@@ -136,8 +174,7 @@ int c_openal_update(c_openal_t *self)
 	alListenerfv(AL_ORIENTATION, listenerOri);
 	alListener3f(AL_VELOCITY, 0, 0, 0);
 
-	ALCenum error;
-	error = alGetError(); if (error != AL_NO_ERROR) printf("error at %d\n", __LINE__);
+	alerr();
 
 	return CONTINUE;
 }
@@ -161,9 +198,9 @@ void c_openal_destroy(c_openal_t *self)
 
 REG()
 {
-	ct_t *ct = ct_new("openal", sizeof(c_openal_t), c_openal_init,
-			c_openal_destroy, 0);
+	ct_t *ct = ct_new("openal", sizeof(c_openal_t), (init_cb)c_openal_init,
+			(destroy_cb)c_openal_destroy, 0);
 
-	ct_listener(ct, WORLD, sig("world_update"), c_openal_update);
+	ct_listener(ct, WORLD, 0, sig("world_update"), c_openal_update);
 }
 

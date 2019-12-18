@@ -16,4 +16,7 @@ DEF_CASTER("openal", c_openal, c_openal_t)
 c_openal_t *c_openal_new(void);
 void c_openal_set_listener(c_openal_t *self, entity_t listener);
 
+#define alerr() _check_al_error(__FILE__,__LINE__)
+void _check_al_error(const char *file, int line);
+
 #endif /* !OPENAL_H */

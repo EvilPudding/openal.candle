@@ -28,7 +28,7 @@ OBJS_DEB = $(SAUCES_OBJ) $(patsubst %.c, $(DIR)/%.debug.o, $(SRCS))
 OBJS_EMS = $(SAUCES_EMS_OBJ) $(patsubst %.c, $(DIR)/%.emscripten.o, $(SRCS))
 
 CFLAGS = $(shell pkg-config openal --cflags) -I../candle \
-	-Wuninitialized $(PARENTCFLAGS)
+	-Wuninitialized -Wno-unused-function $(PARENTCFLAGS)
 
 CFLAGS_REL = $(CFLAGS) -O3
 

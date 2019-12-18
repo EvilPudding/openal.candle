@@ -32,7 +32,7 @@ void c_speaker_init(c_speaker_t *self)
 	/* alSourcef(self->source, AL_REFERENCE_DISTANCE, 6); */
 	/* alSourcef(self->source, AL_MAX_DISTANCE, 15); */
 
-	ALCenum error = alGetError(); if (error != AL_NO_ERROR) printf("error at %d\n", __LINE__);
+	alerr();
 
 	if(!g_speaker_mat)
 	{
@@ -58,13 +58,13 @@ void c_speaker_init(c_speaker_t *self)
 void c_speaker_set_gain(c_speaker_t *self, float gain)
 {
 	alSourcef(self->source, AL_GAIN, gain);
-	ALCenum error = alGetError(); if (error != AL_NO_ERROR) printf("error at %d\n", __LINE__);
+	alerr();
 }
 
 void c_speaker_set_pitch(c_speaker_t *self, float pitch)
 {
 	alSourcef(self->source, AL_PITCH, 1);
-	ALCenum error = alGetError(); if (error != AL_NO_ERROR) printf("error at %d\n", __LINE__);
+	alerr();
 }
 
 /* static int c_speaker_update(c_speaker_t *self) */
@@ -87,11 +87,10 @@ static int c_speaker_update_position(c_speaker_t *self)
 	c_node_update_model(nc);
 	vec3_t p = c_node_pos_to_global(nc, vec3(0, 0, 0));
 
-	alSource3f(self->source, AL_POSITION, p.x, p.y, p.z);
-	alSource3f(self->source, AL_VELOCITY, 0, 0, 0);
-	ALCenum error = alGetError(); if (error != AL_NO_ERROR) printf("error at %d\n", __LINE__);
+	alSource3f(self->source, AL_POSITION, p.x, p.y, p.z); alerr();
+	alSource3f(self->source, AL_VELOCITY, 0, 0, 0); alerr();
 	/* alSource3f(source, AL_VELOCITY, 0, 0, 0); */
-	/* error = alGetError(); if (error != AL_NO_ERROR) printf("error at %d\n", __LINE__); */
+	/* alerr(); */
 
 	/* mat4_t model = node->model; */
 	/* if(self->scale_dist > 0.0f) */
@@ -132,10 +131,10 @@ void c_speaker_play(c_speaker_t *self, sound_t *sound, bool_t loop)
 
 	alSourceStop(self->source);
 	alSourcei(self->source, AL_LOOPING, loop);
-	error = alGetError(); if (error != AL_NO_ERROR) printf("error at %d\n", __LINE__);
+	alerr();
 
 	alSourcei(self->source, AL_BUFFER, sound->buffer);
-	error = alGetError(); if (error != AL_NO_ERROR) printf("error at %d\n", __LINE__);
+	alerr();
 	/* switch(error) */
 	/* { */
 	/* 	case AL_INVALID_NAME: */
@@ -157,7 +156,7 @@ void c_speaker_play(c_speaker_t *self, sound_t *sound, bool_t loop)
 	/* } */
 
 	alSourcePlay(self->source);
-	error = alGetError(); if (error != AL_NO_ERROR) printf("error at %d\n", __LINE__);
+	alerr();
 
 	self->playing = sound;
 }
@@ -193,10 +192,10 @@ static int c_speaker_editmode_toggle(c_speaker_t *self)
 
 REG()
 {
-	ct_t *ct = ct_new("speaker", sizeof(c_speaker_t), c_speaker_init,
-			c_speaker_destroy, 1, ref("node"));
-	ct_listener(ct, WORLD, sig("editmode_toggle"), c_speaker_editmode_toggle);
+	ct_t *ct = ct_new("speaker", sizeof(c_speaker_t), (init_cb)c_speaker_init,
+			(destroy_cb)c_speaker_destroy, 1, ref("node"));
+	ct_listener(ct, WORLD, 0, sig("editmode_toggle"), c_speaker_editmode_toggle);
 	/* ct_listener(ct, WORLD, sig("world_update"), c_speaker_update); */
-	ct_listener(ct, ENTITY, sig("node_changed"), c_speaker_update_position);
+	ct_listener(ct, ENTITY, 0, sig("node_changed"), c_speaker_update_position);
 }
 

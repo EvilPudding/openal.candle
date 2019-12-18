@@ -1,3 +1,4 @@
+#include "openal.h"
 #include "speaker.h"
 
 #include <stdio.h>
@@ -13,8 +14,7 @@ sound_t *sound_new()
 
 	sound_t *self = malloc(sizeof(self));
 
-	alGenBuffers((ALuint)1, &self->buffer);
-	error = alGetError(); if (error != AL_NO_ERROR) printf("error at %d\n", __LINE__);
+	alGenBuffers((ALuint)1, &self->buffer); alerr();
 
 	return self;
 }
@@ -42,13 +42,7 @@ int sound_load(sound_t *self, const char *filename)
 	self->data = alutLoadMemoryFromFile(filename, &self->format, &self->size,
 			&self->freq);
 	alBufferData(self->buffer, self->format, self->data, self->size, self->freq);
-
-	error = alGetError();
-	if (error != AL_NO_ERROR)
-	{
-		printf("error at %d\n", __LINE__);
-		return 0;
-	}
+	alerr();
 
 	return 1;
 }
