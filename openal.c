@@ -192,7 +192,7 @@ int c_openal_update(c_openal_t *self)
 c_openal_t *c_openal_new()
 {
 
-	c_openal_t *self = component_new("openal");
+	c_openal_t *self = component_new(ct_openal);
 
 	c_openal_update(self);
 
@@ -206,11 +206,11 @@ void c_openal_destroy(c_openal_t *self)
 	alcCloseDevice(self->device);
 }
 
-REG()
+void ct_openal(ct_t *self)
 {
-	ct_t *ct = ct_new("openal", sizeof(c_openal_t), (init_cb)c_openal_init,
-			(destroy_cb)c_openal_destroy, 0);
-
-	ct_listener(ct, WORLD, 0, sig("world_update"), c_openal_update);
+	ct_init(self, "openal", sizeof(c_openal_t));
+	ct_set_init(self, (init_cb)c_openal_init);
+	ct_set_destroy(self, (destroy_cb)c_openal_destroy);
+	ct_listener(self, WORLD, 0, sig("world_update"), c_openal_update);
 }
 

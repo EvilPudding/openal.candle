@@ -13,7 +13,8 @@ typedef struct c_speaker_t
 	sound_t *playing;
 } c_speaker_t;
 
-DEF_CASTER("speaker", c_speaker, c_speaker_t)
+void ct_speaker(ct_t *self);
+DEF_CASTER(ct_speaker, c_speaker, c_speaker_t)
 
 c_speaker_t *c_speaker_new(void);
 

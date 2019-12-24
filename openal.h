@@ -11,7 +11,8 @@ typedef struct c_openal_t
 	entity_t listener;
 } c_openal_t;
 
-DEF_CASTER("openal", c_openal, c_openal_t)
+void ct_openal(ct_t *self);
+DEF_CASTER(ct_openal, c_openal, c_openal_t)
 
 c_openal_t *c_openal_new(void);
 void c_openal_set_listener(c_openal_t *self, entity_t listener);

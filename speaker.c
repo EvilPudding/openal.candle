@@ -170,7 +170,7 @@ void c_speaker_play(c_speaker_t *self, sound_t *sound, bool_t loop)
 
 c_speaker_t *c_speaker_new()
 {
-	c_speaker_t *self = component_new("speaker");
+	c_speaker_t *self = component_new(ct_speaker);
 
 	return self;
 }
@@ -197,11 +197,13 @@ static int32_t c_speaker_editmode_toggle(c_speaker_t *self)
 	return CONTINUE;
 }
 
-REG()
+void ct_speaker(ct_t *self)
 {
-	ct_t *ct = ct_new("speaker", sizeof(c_speaker_t), (init_cb)c_speaker_init,
-			(destroy_cb)c_speaker_destroy, 1, ref("node"));
-	ct_listener(ct, WORLD, 0, sig("editmode_toggle"), c_speaker_editmode_toggle);
-	ct_listener(ct, ENTITY, 0, sig("node_changed"), c_speaker_update_position);
+	ct_init(self, "speaker", sizeof(c_speaker_t));
+	ct_set_init(self, (init_cb)c_speaker_init);
+	ct_set_destroy(self, (destroy_cb)c_speaker_destroy);
+	ct_dependency(self, ct_node);
+	ct_listener(self, WORLD, 0, sig("editmode_toggle"), c_speaker_editmode_toggle);
+	ct_listener(self, ENTITY, 0, sig("node_changed"), c_speaker_update_position);
 }
 
