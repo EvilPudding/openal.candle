@@ -24,7 +24,6 @@ extern unsigned char speaker_png[];
 extern unsigned int speaker_png_len;
 
 static int32_t c_speaker_update_position(c_speaker_t *self);
-static int32_t c_speaker_editmode_toggle(c_speaker_t *self);
 
 static mat_t *g_speaker_mat;
 
@@ -48,14 +47,12 @@ void c_speaker_init(c_speaker_t *self)
 		mat4f(g_speaker_mat, ref("emissive.color"), vec4(0.4, 0.6, 0.8, 1.0f));
 	}
 
-	drawable_init(&self->draw, ref("transparent"));
+	drawable_init(&self->draw, ref("widget"));
 	drawable_add_group(&self->draw, ref("selectable"));
 	drawable_set_vs(&self->draw, sprite_vs());
 	drawable_set_mat(&self->draw, g_speaker_mat);
 	drawable_set_entity(&self->draw, c_entity(self));
 	drawable_set_xray(&self->draw, 1);
-
-	c_speaker_editmode_toggle(self);
 
 	c_speaker_update_position(self);
 }
@@ -181,29 +178,12 @@ void c_speaker_destroy(c_speaker_t *self)
 	alDeleteSources(1, &self->source);
 }
 
-static int32_t c_speaker_editmode_toggle(c_speaker_t *self)
-{
-	c_editmode_t *edit = c_editmode(&SYS);
-	if(!edit) return CONTINUE;
-
-	if(edit->control)
-	{
-		drawable_set_mesh(&self->draw, sprite_mesh());
-	}
-	else
-	{
-		drawable_set_mesh(&self->draw, NULL);
-	}
-	return CONTINUE;
-}
-
 void ct_speaker(ct_t *self)
 {
 	ct_init(self, "speaker", sizeof(c_speaker_t));
 	ct_set_init(self, (init_cb)c_speaker_init);
 	ct_set_destroy(self, (destroy_cb)c_speaker_destroy);
 	ct_dependency(self, ct_node);
-	ct_listener(self, WORLD, 0, sig("editmode_toggle"), c_speaker_editmode_toggle);
 	ct_listener(self, ENTITY, 0, sig("node_changed"), c_speaker_update_position);
 }
 
