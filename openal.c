@@ -78,7 +78,6 @@ void _check_al_error(const char *file, int line)
 
 void c_openal_init(c_openal_t *self)
 {
-
 	self->device = alcOpenDevice(NULL);
 	if(!self->device)
 	{
@@ -164,37 +163,9 @@ void c_openal_init(c_openal_t *self)
 	sauces_loader(ref("wav"), sound_loader);
 }
 
-void c_openal_set_listener(c_openal_t *self, entity_t listener)
-{
-	self->listener = listener;
-}
-
-int c_openal_update(c_openal_t *self)
-{
-	if(!entity_exists(self->listener)) return CONTINUE;
-	c_node_t *nc = c_node(&self->listener);
-	if(!nc) return CONTINUE;
-
-	vec3_t pos = c_node_pos_to_global(nc, Z3);
-	vec3_t at = c_node_dir_to_global(nc, vec3(0.0f, 0.0f, -1.0f));
-	vec3_t up = c_node_dir_to_global(nc, vec3(0.0f, 1.0f, 0.0f));
-
-	ALfloat listenerOri[] = { at.x, at.y, at.z, up.x, up.y, up.z };
-	alListener3f(AL_POSITION, pos.x, pos.y, pos.z);
-	alListenerfv(AL_ORIENTATION, listenerOri);
-	alListener3f(AL_VELOCITY, 0, 0, 0);
-
-	alerr();
-
-	return CONTINUE;
-}
-
 c_openal_t *c_openal_new()
 {
-
 	c_openal_t *self = component_new(ct_openal);
-
-	c_openal_update(self);
 
 	return self;
 }
@@ -211,6 +182,5 @@ void ct_openal(ct_t *self)
 	ct_init(self, "openal", sizeof(c_openal_t));
 	ct_set_init(self, (init_cb)c_openal_init);
 	ct_set_destroy(self, (destroy_cb)c_openal_destroy);
-	ct_listener(self, WORLD, 0, sig("world_update"), c_openal_update);
 }
 
