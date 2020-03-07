@@ -42,7 +42,7 @@ void c_speaker_init(c_speaker_t *self)
 	{
 		g_speaker_mat = mat_new("speaker", "default");
 		mat1t(g_speaker_mat, ref("albedo.texture"),
-		      texture_from_memory(speaker_png, speaker_png_len));
+		      texture_from_memory("speaker", speaker_png, speaker_png_len));
 		mat1f(g_speaker_mat, ref("albedo.blend"), 1.0f);
 		mat4f(g_speaker_mat, ref("emissive.color"), vec4(0.4, 0.6, 0.8, 1.0f));
 	}
@@ -52,7 +52,8 @@ void c_speaker_init(c_speaker_t *self)
 	drawable_set_vs(&self->draw, sprite_vs());
 	drawable_set_mat(&self->draw, g_speaker_mat);
 	drawable_set_entity(&self->draw, c_entity(self));
-	drawable_set_xray(&self->draw, 1);
+	drawable_set_xray(&self->draw, true);
+	drawable_set_mesh(&self->draw, sprite_mesh());
 
 	c_speaker_update_position(self);
 }
@@ -83,11 +84,39 @@ void c_speaker_set_pitch(c_speaker_t *self, float pitch)
 /* 	} */
 /* } */
 
+static bool_t c_speaker_playing(c_speaker_t *self)
+{
+	if (self->playing)
+	{
+		ALenum state;
+		alGetSourcei(self->source, AL_SOURCE_STATE, &state);
+		if (state != AL_PLAYING)
+		{
+			self->playing = NULL;
+			c_openal(&SYS)->rel_sound_playing--;
+		}
+		else
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 static int32_t c_speaker_update_position(c_speaker_t *self)
 {
 	c_node_t *nc = c_node(self);
+	vec3_t p;
+
+	drawable_set_transform(&self->draw, nc->model);
+
+	if (!c_speaker_playing(self))
+	{
+		return CONTINUE;
+	}
+
 	c_node_update_model(nc);
-	vec3_t p = c_node_pos_to_global(nc, vec3(0, 0, 0));
+	p = c_node_pos_to_global(nc, vec3(0, 0, 0));
 
 	alSource3f(self->source, AL_POSITION, p.x, p.y, p.z); alerr();
 	alSource3f(self->source, AL_VELOCITY, 0, 0, 0); alerr();
@@ -101,7 +130,6 @@ static int32_t c_speaker_update_position(c_speaker_t *self)
 	/* 	float dist = vec3_dist(pos, c_renderer(&SYS)->bound_camera_pos); */
 	/* 	mat4_t model = mat4_scale_aniso(model, vec3(dist * self->scale_dist)); */
 	/* } */
-	drawable_set_transform(&self->draw, nc->model);
 
 	return CONTINUE;
 }
@@ -159,6 +187,10 @@ void c_speaker_play(c_speaker_t *self, sound_t *sound, bool_t loop)
 
 	/* } */
 
+	c_openal(&SYS)->rel_sound_playing++;
+
+	c_speaker_update_position(self);
+
 	alSourcePlay(self->source);
 	alerr();
 
@@ -183,7 +215,7 @@ void ct_speaker(ct_t *self)
 	ct_init(self, "speaker", sizeof(c_speaker_t));
 	ct_set_init(self, (init_cb)c_speaker_init);
 	ct_set_destroy(self, (destroy_cb)c_speaker_destroy);
-	ct_dependency(self, ct_node);
-	ct_listener(self, ENTITY, 0, sig("node_changed"), c_speaker_update_position);
+	ct_add_dependency(self, ct_node);
+	ct_add_listener(self, ENTITY, 0, sig("node_changed"), c_speaker_update_position);
 }
 
