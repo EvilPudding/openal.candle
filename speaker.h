@@ -1,9 +1,9 @@
 #ifndef SPEAKER_H
 #define SPEAKER_H
 
-#include <ecs/ecm.h>
+#include "../candle/ecs/ecm.h"
 #include "sound.h"
-#include <utils/drawable.h>
+#include "../candle/utils/drawable.h"
 
 typedef struct c_speaker_t
 {

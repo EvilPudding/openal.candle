@@ -1,7 +1,7 @@
 #ifndef SOUND_H
 #define SOUND_H
 
-#include <ecs/ecm.h>
+#include "../candle/ecs/ecm.h"
 
 typedef struct
 {
@@ -14,7 +14,7 @@ typedef struct
 
 sound_t *sound_new(void);
 
-int sound_load(sound_t *self, const char *filename);
+int sound_load(sound_t *self, const char *bytes, size_t bytes_num);
 float sound_get_value(sound_t *self, int32_t offset);
 
 void sound_destroy(sound_t *self);

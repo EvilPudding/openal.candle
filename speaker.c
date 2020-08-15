@@ -1,11 +1,12 @@
 #include "speaker.h"
 #include "openal.h"
-#include <components/node.h>
-#include <components/model.h>
-#include <utils/drawable.h>
-#include <components/sprite.h>
-#include <components/node.h>
-#include <systems/editmode.h>
+#include "../candle/components/node.h"
+#include "../candle/components/model.h"
+#include "../candle/utils/drawable.h"
+#include "../candle/components/sprite.h"
+#include "../candle/components/node.h"
+#include "../candle/systems/editmode.h"
+#include "../candle/systems/sauces.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,10 +19,6 @@
 #include <AL/alc.h>
 #endif
 #include "alut.h"
-
-/* #include "build/speaker.png.sauce.c" */
-extern unsigned char speaker_png[];
-extern unsigned int speaker_png_len;
 
 static int32_t c_speaker_update_position(c_speaker_t *self);
 
@@ -41,8 +38,7 @@ void c_speaker_init(c_speaker_t *self)
 	if(!g_speaker_mat)
 	{
 		g_speaker_mat = mat_new("speaker", "default");
-		mat1t(g_speaker_mat, ref("albedo.texture"),
-		      texture_from_memory("speaker", speaker_png, speaker_png_len));
+		mat1t(g_speaker_mat, ref("albedo.texture"), sauces("speaker"));
 		mat1f(g_speaker_mat, ref("albedo.blend"), 1.0f);
 		mat4f(g_speaker_mat, ref("emissive.color"), vec4(0.4, 0.6, 0.8, 1.0f));
 	}

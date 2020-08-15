@@ -17,15 +17,9 @@ DEPS_EMS = -lopenal $(ALUT)/build/libalut.a
 
 SAUCES = speaker.png
 
-SAUCES_SRC = $(patsubst %, $(DIR)/%.sauce.c, $(SAUCES))
-SAUCES_OBJ = $(patsubst $(DIR)/%.c, $(DIR)/%.o, $(SAUCES_SRC))
-
-SAUCES_EMS_SRC  = $(patsubst %, $(DIR)/%.emscripten_sauce.c, $(SAUCES))
-SAUCES_EMS_OBJ = $(patsubst $(DIR)/%.c, $(DIR)/%.o, $(SAUCES_EMS_SRC))
-
-OBJS_REL = $(SAUCES_OBJ) $(patsubst %.c, $(DIR)/%.o, $(SRCS))
-OBJS_DEB = $(SAUCES_OBJ) $(patsubst %.c, $(DIR)/%.debug.o, $(SRCS))
-OBJS_EMS = $(SAUCES_EMS_OBJ) $(patsubst %.c, $(DIR)/%.emscripten.o, $(SRCS))
+OBJS_REL = $(patsubst %.c, $(DIR)/%.o, $(SRCS))
+OBJS_DEB = $(patsubst %.c, $(DIR)/%.debug.o, $(SRCS))
+OBJS_EMS = $(patsubst %.c, $(DIR)/%.emscripten.o, $(SRCS))
 
 CFLAGS = $(shell pkg-config openal --cflags) -I../candle \
 		 -Wuninitialized -Wno-unused-function $(PARENTCFLAGS)
@@ -41,8 +35,11 @@ CFLAGS_EMS = $(CFLAGS) -s USE_GLFW=3 -s ALLOW_MEMORY_GROWTH=1 -s USE_WEBGL2=1 \
 
 ##############################################################################
 
-all: $(DIR)/export.a
-	echo -n $(DEPS) > $(DIR)/deps
+all: $(DIR)/libs
+	echo $(SAUCES) > $(DIR)/res
+
+$(DIR)/libs: $(DIR)/export.a
+	echo $(DEPS) openal.candle/$< > $@
 
 $(DIR)/export.a: init $(OBJS_REL)
 	$(AR) rs $(DIR)/export.a $(OBJS_REL)
@@ -52,8 +49,11 @@ $(DIR)/%.o: %.c
 
 ##############################################################################
 
-debug: $(DIR)/export_debug.a
-	echo -n $(DEPS) > $(DIR)/deps
+debug: $(DIR)/libs_debug
+	echo $(SAUCES) > $(DIR)/res
+
+$(DIR)/libs_debug: $(DIR)/export_debug.a
+	echo $(DEPS) openal.candle/$< > $@
 
 $(DIR)/export_debug.a: init $(OBJS_DEB)
 	$(AR) rs $(DIR)/export_debug.a $(OBJS_DEB)
@@ -63,22 +63,17 @@ $(DIR)/%.debug.o: %.c
 
 ##############################################################################
 
-emscripten: $(DIR)/export_emscripten.a
-	echo $(DEPS_EMS) > $(DIR)/deps
+emscripten: $(DIR)/libs_emscripten
+	echo $(SAUCES) > $(DIR)/res
+
+$(DIR)/libs_emscripten: $(DIR)/export_emscripten.a
+	echo $(DEPS_EMS) openal.candle/$< > $@
 
 $(DIR)/export_emscripten.a: init $(OBJS_EMS)
 	emar rs build/export_emscripten.a $(OBJS_EMS)
 
 $(DIR)/%.emscripten.o: %.c
 	emcc -o $@ -c $< $(CFLAGS_EMS)
-
-$(DIR)/%.emscripten_sauce.c: %
-	xxd -i $< > $@
-
-##############################################################################
-
-$(DIR)/%.sauce.c: %
-	xxd -i $< > $@
 
 ##############################################################################
 

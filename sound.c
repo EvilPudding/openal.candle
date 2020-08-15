@@ -41,11 +41,11 @@ float sound_get_value(sound_t *self, int32_t offset)
 	return 0.0f;
 }
 
-int sound_load(sound_t *self, const char *filename)
+int sound_load(sound_t *self, const char *bytes, size_t bytes_num)
 {
 	ALCenum error;
-	self->data = alutLoadMemoryFromFile(filename, &self->format, &self->size,
-			&self->freq);
+	self->data = alutLoadMemoryFromFileImage(bytes, bytes_num, &self->format,
+	                                         &self->size, &self->freq);
 	alBufferData(self->buffer, self->format, self->data, self->size, self->freq);
 	alerr();
 

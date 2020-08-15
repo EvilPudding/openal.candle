@@ -1,9 +1,9 @@
 #include "openal.h"
 #include "sound.h"
 
-#include <systems/sauces.h>
-#include <components/camera.h>
-#include <components/node.h>
+#include "../candle/systems/sauces.h"
+#include "../candle/components/camera.h"
+#include "../candle/components/node.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,10 +29,11 @@ static LPALCGETSTRINGISOFT alcGetStringiSOFT;
 static LPALCRESETDEVICESOFT alcResetDeviceSOFT;
 #endif
 
-void *sound_loader(const char *path, const char *name, uint32_t ext)
+void *sound_loader(const char *bytes, size_t bytes_num, const char *name,
+                   uint32_t ext)
 {
 	sound_t *sound = sound_new();
-	sound_load(sound, path);
+	sound_load(sound, bytes, bytes_num);
 	return sound;
 }
 
