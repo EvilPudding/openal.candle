@@ -15,7 +15,7 @@ ALUT = /home/pudds/projects/third_party/emsdk/emscripten/master/tests/freealut
 DEPS = -lopenal -lalut
 DEPS_EMS = -lopenal $(ALUT)/build/libalut.a
 
-SAUCES = speaker.png
+PLUGIN_SAUCES = speaker.png
 
 OBJS_REL = $(patsubst %.c, $(DIR)/%.o, $(SRCS))
 OBJS_DEB = $(patsubst %.c, $(DIR)/%.debug.o, $(SRCS))
@@ -36,7 +36,7 @@ CFLAGS_EMS = $(CFLAGS) -s USE_GLFW=3 -s ALLOW_MEMORY_GROWTH=1 -s USE_WEBGL2=1 \
 ##############################################################################
 
 all: $(DIR)/libs
-	echo $(SAUCES) > $(DIR)/res
+	echo $(PLUGIN_SAUCES) > $(DIR)/res
 
 $(DIR)/libs: $(DIR)/export.a
 	echo $(DEPS) openal.candle/$< > $@
@@ -50,7 +50,7 @@ $(DIR)/%.o: %.c
 ##############################################################################
 
 debug: $(DIR)/libs_debug
-	echo $(SAUCES) > $(DIR)/res
+	echo $(PLUGIN_SAUCES) > $(DIR)/res
 
 $(DIR)/libs_debug: $(DIR)/export_debug.a
 	echo $(DEPS) openal.candle/$< > $@
@@ -64,7 +64,7 @@ $(DIR)/%.debug.o: %.c
 ##############################################################################
 
 emscripten: $(DIR)/libs_emscripten
-	echo $(SAUCES) > $(DIR)/res
+	echo $(PLUGIN_SAUCES) > $(DIR)/res
 
 $(DIR)/libs_emscripten: $(DIR)/export_emscripten.a
 	echo $(DEPS_EMS) openal.candle/$< > $@
