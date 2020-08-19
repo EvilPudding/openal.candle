@@ -8,15 +8,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifdef WIN32
-#include <alc.h>
-#include <al.h>
-#else
 #include <AL/al.h>
 #include <AL/alc.h>
-#endif
 
-#include "alut.h"
 #if !defined(__EMSCRIPTEN__) && !defined(WIN32)
 #include <AL/alext.h>
 #endif
@@ -72,7 +66,6 @@ void _check_al_error(const char *file, int line)
 	}
 	if(got_error)
 	{
-		__builtin_trap();
 		exit(1);
 	}
 }
@@ -92,7 +85,6 @@ void c_openal_init(c_openal_t *self)
 		printf("Could not create al context.\n");
 		return;
 	}
-	alutInitWithoutContext(0, NULL);
 
 	alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED);
 

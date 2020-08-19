@@ -4,14 +4,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifdef WIN32
-#include <alc.h>
-#include <al.h>
-#else
 #include <AL/al.h>
 #include <AL/alc.h>
-#endif
-#include "alut.h"
+#define DR_WAV_IMPLEMENTATION
+#include "dr_wav.h"
 
 sound_t *sound_new()
 {
@@ -44,8 +40,52 @@ float sound_get_value(sound_t *self, int32_t offset)
 int sound_load(sound_t *self, const char *bytes, size_t bytes_num)
 {
 	ALCenum error;
-	self->data = alutLoadMemoryFromFileImage(bytes, bytes_num, &self->format,
-	                                         &self->size, &self->freq);
+	drwav wav;
+
+	if (!drwav_init_memory(&wav, bytes, bytes_num, NULL))
+	{
+		return 0;
+	}
+
+	self->size = (size_t)wav.totalPCMFrameCount * wav.channels * sizeof(int32_t);
+	self->data = malloc(self->size);
+	self->freq = wav.sampleRate;
+	if (wav.channels == 2)
+	{
+		if (wav.bitsPerSample == 16)
+		{
+			self->format = AL_FORMAT_STEREO16;
+		}
+		else if (wav.bitsPerSample == 8)
+		{
+			self->format = AL_FORMAT_STEREO8;
+		}
+		else
+		{
+			printf("bits not supported %d\n", wav.bitsPerSample);
+		}
+	}
+	else if (wav.channels == 1)
+	{
+		if (wav.bitsPerSample == 16)
+		{
+			self->format = AL_FORMAT_MONO16;
+		}
+		else if (wav.bitsPerSample == 8)
+		{
+			self->format = AL_FORMAT_MONO8;
+		}
+		else
+		{
+			printf("bits not supported %d\n", wav.bitsPerSample);
+		}
+	}
+	else
+	{
+		printf("channels not supported %d\n", wav.channels);
+	}
+
+	drwav_read_pcm_frames_s32(&wav, wav.totalPCMFrameCount, self->data);
 	alBufferData(self->buffer, self->format, self->data, self->size, self->freq);
 	alerr();
 

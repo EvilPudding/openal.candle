@@ -1,23 +1,16 @@
 #include "listener.h"
 #include "openal.h"
-#include <components/node.h>
-#include <components/model.h>
-#include <utils/drawable.h>
-#include <components/sprite.h>
-#include <components/node.h>
-#include <systems/editmode.h>
+#include "../candle/components/node.h"
+#include "../candle/components/model.h"
+#include "../candle/utils/drawable.h"
+#include "../candle/components/sprite.h"
+#include "../candle/components/node.h"
+#include "../candle/systems/editmode.h"
 
 #include <stdio.h>
 #include <stdlib.h>
-
-#ifdef WIN32
-#include <alc.h>
-#include <al.h>
-#else
 #include <AL/al.h>
 #include <AL/alc.h>
-#endif
-#include "alut.h"
 
 static int32_t c_listener_update_position(c_listener_t *self);
 

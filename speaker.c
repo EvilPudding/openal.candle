@@ -11,14 +11,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifdef WIN32
-#include <alc.h>
-#include <al.h>
-#else
 #include <AL/al.h>
 #include <AL/alc.h>
-#endif
-#include "alut.h"
 
 static int32_t c_speaker_update_position(c_speaker_t *self);
 
