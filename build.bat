@@ -1,5 +1,5 @@
 @ECHO OFF
-SETLOCAL
+SETLOCAL ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
 
 CD /D %~dp0
 
@@ -30,6 +30,7 @@ FOR %%f IN (%sources%) DO @IF EXIST "%%f" (
 )
 
 echo openal.candle\%DIR%\export.lib openal.candle\%DIR%\alsoft\Debug\OpenAL32.lib openal.candle\%DIR%\alsoft\Debug\common.lib openal.candle\%DIR%\alsoft\Debug\ex-common.lib > %DIR%\libs
+echo speaker.png > %DIR%\res
 
 lib !objects! /out:"%DIR%\export.lib"
 

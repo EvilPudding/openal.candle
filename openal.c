@@ -66,6 +66,7 @@ void _check_al_error(const char *file, int line)
 	}
 	if(got_error)
 	{
+		printf("Exiting due to al error\n");
 		exit(1);
 	}
 }
