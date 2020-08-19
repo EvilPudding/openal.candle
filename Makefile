@@ -10,10 +10,8 @@ DIR = build
 
 SRCS = openal.c sound.c speaker.c listener.c
 
-ALUT = /home/pudds/projects/third_party/emsdk/emscripten/master/tests/freealut
-
-DEPS = -lopenal -lalut
-DEPS_EMS = -lopenal $(ALUT)/build/libalut.a
+DEPS = -lopenal
+DEPS_EMS = -lopenal
 
 PLUGIN_SAUCES = speaker.png
 
