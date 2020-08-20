@@ -7,7 +7,7 @@ typedef struct
 {
 	uint32_t buffer;
 	int32_t size;
-	float freq;
+	int32_t freq;
 	uint32_t format;
 	void *data;
 } sound_t;

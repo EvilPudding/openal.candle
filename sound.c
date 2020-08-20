@@ -47,47 +47,27 @@ int sound_load(sound_t *self, const char *bytes, size_t bytes_num)
 		return 0;
 	}
 
-	self->size = (size_t)wav.totalPCMFrameCount * wav.channels * sizeof(int32_t);
+	self->size = (size_t)wav.totalPCMFrameCount * wav.channels * 16;
 	self->data = malloc(self->size);
 	self->freq = wav.sampleRate;
 	if (wav.channels == 2)
 	{
-		if (wav.bitsPerSample == 16)
-		{
-			self->format = AL_FORMAT_STEREO16;
-		}
-		else if (wav.bitsPerSample == 8)
-		{
-			self->format = AL_FORMAT_STEREO8;
-		}
-		else
-		{
-			printf("bits not supported %d\n", wav.bitsPerSample);
-		}
+		self->format = AL_FORMAT_STEREO16;
 	}
 	else if (wav.channels == 1)
 	{
-		if (wav.bitsPerSample == 16)
-		{
-			self->format = AL_FORMAT_MONO16;
-		}
-		else if (wav.bitsPerSample == 8)
-		{
-			self->format = AL_FORMAT_MONO8;
-		}
-		else
-		{
-			printf("bits not supported %d\n", wav.bitsPerSample);
-		}
+		self->format = AL_FORMAT_MONO16;
 	}
 	else
 	{
 		printf("channels not supported %d\n", wav.channels);
 	}
 
-	drwav_read_pcm_frames_s32(&wav, wav.totalPCMFrameCount, self->data);
+	drwav_read_pcm_frames_s16(&wav, wav.totalPCMFrameCount, self->data);
+	printf("frequency %d %d %d\n", self->freq, self->size, self->format);
 	alBufferData(self->buffer, self->format, self->data, self->size, self->freq);
 	alerr();
+	drwav_uninit(&wav);
 
 	return 1;
 }

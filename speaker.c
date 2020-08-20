@@ -147,35 +147,15 @@ int32_t c_speaker_get_byte_offset(c_speaker_t *self)
 void c_speaker_play(c_speaker_t *self, sound_t *sound, bool_t loop)
 {
 	if(!sound) return;
-	ALCenum error;
 
 	alSourceStop(self->source);
-	error = alGetError(); if (error != AL_NO_ERROR) printf("error at %d\n", __LINE__);
+	alerr();
 
 	alSourcei(self->source, AL_LOOPING, loop);
 	alerr();
 
 	alSourcei(self->source, AL_BUFFER, sound->buffer);
 	alerr();
-	/* switch(error) */
-	/* { */
-	/* 	case AL_INVALID_NAME: */
-	/* 		printf("invalid name\n"); */
-	/* 		break; */
-	/* 	case AL_INVALID_ENUM: */
-	/* 		printf("invalid enum\n"); */
-	/* 		break; */
-	/* 	case AL_INVALID_VALUE: */
-	/* 		printf("invalid value\n"); */
-	/* 		break; */
-	/* 	case AL_INVALID_OPERATION: */
-	/* 		printf("invalid operation\n"); */
-	/* 		break; */
-	/* 	case AL_OUT_OF_MEMORY: */
-	/* 		printf("out of mem\n"); */
-	/* 		break; */
-
-	/* } */
 
 	c_openal(&SYS)->rel_sound_playing++;
 

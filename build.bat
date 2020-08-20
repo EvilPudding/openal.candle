@@ -14,7 +14,7 @@ mkdir %DIR%\alsoft
 CALL ..\candle\vcenv.bat
 
 cmake -B %DIR%\alsoft openal-soft
-cmake --build %DIR%\alsoft
+cmake --build %DIR%\alsoft --config Release
 
 set objects=
 FOR %%f IN (%sources%) DO @IF EXIST "%%f" (
@@ -29,7 +29,7 @@ FOR %%f IN (%sources%) DO @IF EXIST "%%f" (
 	CALL set objects=!objects! !object!
 )
 
-echo openal.candle\%DIR%\export.lib openal.candle\%DIR%\alsoft\Debug\OpenAL32.lib openal.candle\%DIR%\alsoft\Debug\common.lib openal.candle\%DIR%\alsoft\Debug\ex-common.lib > %DIR%\libs
+echo openal.candle\%DIR%\export.lib openal.candle\%DIR%\alsoft\Release\OpenAL32.lib openal.candle\%DIR%\alsoft\Release\common.lib openal.candle\%DIR%\alsoft\Release\ex-common.lib > %DIR%\libs
 echo speaker.png > %DIR%\res
 
 lib !objects! /out:"%DIR%\export.lib"
