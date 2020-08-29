@@ -3,7 +3,7 @@ SETLOCAL ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
 
 CD /D %~dp0
 
-set sources= listener.c openal.c sound.c speaker.c
+set sources=listener.c openal.c sound.c speaker.c alw.c
 set subdirs=components
 
 set DIR=build
@@ -29,8 +29,8 @@ FOR %%f IN (%sources%) DO @IF EXIST "%%f" (
 	CALL set objects=!objects! !object!
 )
 
-echo openal.candle\%DIR%\export.lib openal.candle\%DIR%\alsoft\Release\OpenAL32.lib openal.candle\%DIR%\alsoft\Release\common.lib openal.candle\%DIR%\alsoft\Release\ex-common.lib > %DIR%\libs
-echo speaker.png > %DIR%\res
+echo openal.candle\%DIR%\export.lib > %DIR%\libs
+echo speaker.png build\alsoft\Release\OpenAL32.dll > %DIR%\res
 
 lib !objects! /out:"%DIR%\export.lib"
 

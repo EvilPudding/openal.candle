@@ -9,8 +9,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <AL/al.h>
-#include <AL/alc.h>
+#include "alw.h"
 
 static int32_t c_listener_update_position(c_listener_t *self);
 
@@ -43,9 +42,9 @@ static int32_t c_listener_update_position(c_listener_t *self)
 	listenerOri[4] = up.y;
 	listenerOri[5] = up.z;
 
-	alListener3f(AL_POSITION, pos.x, pos.y, pos.z);
-	alListenerfv(AL_ORIENTATION, listenerOri);
-	alListener3f(AL_VELOCITY, 0, 0, 0);
+	alwListener3f(AL_POSITION, pos.x, pos.y, pos.z);
+	alwListenerfv(AL_ORIENTATION, listenerOri);
+	alwListener3f(AL_VELOCITY, 0, 0, 0);
 
 	alerr();
 

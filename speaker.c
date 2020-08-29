@@ -11,8 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <AL/al.h>
-#include <AL/alc.h>
+#include "alw.h"
 
 static int32_t c_speaker_update_position(c_speaker_t *self);
 
@@ -20,12 +19,12 @@ static mat_t *g_speaker_mat;
 
 void c_speaker_init(c_speaker_t *self)
 {
-	alGenSources((ALuint)1, &self->source);
+	alwGenSources((ALuint)1, &self->source);
 
-	alSourcei(self->source, AL_SOURCE_RELATIVE, AL_FALSE);
-	/* alSourcef(self->source, AL_ROLLOFF_FACTOR, 1); */
-	/* alSourcef(self->source, AL_REFERENCE_DISTANCE, 6); */
-	/* alSourcef(self->source, AL_MAX_DISTANCE, 15); */
+	alwSourcei(self->source, AL_SOURCE_RELATIVE, AL_FALSE);
+	/* alwSourcef(self->source, AL_ROLLOFF_FACTOR, 1); */
+	/* alwSourcef(self->source, AL_REFERENCE_DISTANCE, 6); */
+	/* alwSourcef(self->source, AL_MAX_DISTANCE, 15); */
 
 	alerr();
 
@@ -50,13 +49,13 @@ void c_speaker_init(c_speaker_t *self)
 
 void c_speaker_set_gain(c_speaker_t *self, float gain)
 {
-	alSourcef(self->source, AL_GAIN, gain);
+	alwSourcef(self->source, AL_GAIN, gain);
 	alerr();
 }
 
 void c_speaker_set_pitch(c_speaker_t *self, float pitch)
 {
-	alSourcef(self->source, AL_PITCH, 1);
+	alwSourcef(self->source, AL_PITCH, 1);
 	alerr();
 }
 
@@ -79,7 +78,7 @@ static bool_t c_speaker_playing(c_speaker_t *self)
 	if (self->playing)
 	{
 		ALenum state;
-		alGetSourcei(self->source, AL_SOURCE_STATE, &state);
+		alwGetSourcei(self->source, AL_SOURCE_STATE, &state);
 		if (state != AL_PLAYING)
 		{
 			self->playing = NULL;
@@ -108,9 +107,9 @@ static int32_t c_speaker_update_position(c_speaker_t *self)
 	c_node_update_model(nc);
 	p = c_node_pos_to_global(nc, vec3(0, 0, 0));
 
-	alSource3f(self->source, AL_POSITION, p.x, p.y, p.z); alerr();
-	alSource3f(self->source, AL_VELOCITY, 0, 0, 0); alerr();
-	/* alSource3f(source, AL_VELOCITY, 0, 0, 0); */
+	alwSource3f(self->source, AL_POSITION, p.x, p.y, p.z); alerr();
+	alwSource3f(self->source, AL_VELOCITY, 0, 0, 0); alerr();
+	/* alwSource3f(source, AL_VELOCITY, 0, 0, 0); */
 	/* alerr(); */
 
 	/* mat4_t model = node->model; */
@@ -139,7 +138,7 @@ int32_t c_speaker_get_byte_offset(c_speaker_t *self)
 	int32_t offset = 0;
 	if (self->playing)
 	{
-		alGetSourcei(self->source, AL_BYTE_OFFSET, &offset);
+		alwGetSourcei(self->source, AL_BYTE_OFFSET, &offset);
 	}
 	return offset;
 }
@@ -148,20 +147,20 @@ void c_speaker_play(c_speaker_t *self, sound_t *sound, bool_t loop)
 {
 	if(!sound) return;
 
-	alSourceStop(self->source);
+	alwSourceStop(self->source);
 	alerr();
 
-	alSourcei(self->source, AL_LOOPING, loop);
+	alwSourcei(self->source, AL_LOOPING, loop);
 	alerr();
 
-	alSourcei(self->source, AL_BUFFER, sound->buffer);
+	alwSourcei(self->source, AL_BUFFER, sound->buffer);
 	alerr();
 
 	c_openal(&SYS)->rel_sound_playing++;
 
 	c_speaker_update_position(self);
 
-	alSourcePlay(self->source);
+	alwSourcePlay(self->source);
 	alerr();
 
 	self->playing = sound;
@@ -177,7 +176,7 @@ c_speaker_t *c_speaker_new()
 void c_speaker_destroy(c_speaker_t *self)
 {
 	drawable_set_mesh(&self->draw, NULL);
-	alDeleteSources(1, &self->source);
+	alwDeleteSources(1, &self->source);
 }
 
 void ct_speaker(ct_t *self)

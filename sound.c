@@ -4,8 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <AL/al.h>
-#include <AL/alc.h>
+#include "alw.h"
 #define DR_WAV_IMPLEMENTATION
 #include "dr_wav.h"
 
@@ -15,7 +14,7 @@ sound_t *sound_new()
 
 	sound_t *self = malloc(sizeof(self));
 
-	alGenBuffers((ALuint)1, &self->buffer); alerr();
+	alwGenBuffers((ALuint)1, &self->buffer); alerr();
 
 	return self;
 }
@@ -65,7 +64,7 @@ int sound_load(sound_t *self, const char *bytes, size_t bytes_num)
 
 	drwav_read_pcm_frames_s16(&wav, wav.totalPCMFrameCount, self->data);
 	printf("frequency %d %d %d\n", self->freq, self->size, self->format);
-	alBufferData(self->buffer, self->format, self->data, self->size, self->freq);
+	alwBufferData(self->buffer, self->format, self->data, self->size, self->freq);
 	alerr();
 	drwav_uninit(&wav);
 
@@ -74,6 +73,6 @@ int sound_load(sound_t *self, const char *bytes, size_t bytes_num)
 
 void sound_destroy(sound_t *self)
 {
-	alDeleteBuffers(1, &self->buffer);
+	alwDeleteBuffers(1, &self->buffer);
 }
 

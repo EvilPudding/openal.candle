@@ -8,9 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <AL/al.h>
-#include <AL/alc.h>
-/* #include "alw.h" */
+#include "alw.h"
 
 #if !defined(__EMSCRIPTEN__) && !defined(WIN32)
 #include <AL/alext.h>
@@ -19,7 +17,7 @@
 //static LPALCGETSTRINGISOFT alcGetStringiSOFT;
 //static LPALCRESETDEVICESOFT alcResetDeviceSOFT;
 
-#if !defined(__EMSCRIPTEN__) && !defined(WIN32)
+#if !defined(__EMSCRIPTEN__) && !defined(_WIN32)
 static LPALCGETSTRINGISOFT alcGetStringiSOFT;
 static LPALCRESETDEVICESOFT alcResetDeviceSOFT;
 #endif
@@ -40,7 +38,7 @@ void _check_al_error(const char *file, int line)
 	static int count = 0;
 	static char last_error[512] = "";
 
-	err = alGetError();
+	err = alwGetError();
 	while (err != AL_NO_ERROR) {
 		char *error = NULL;
 		switch(err)
@@ -62,7 +60,7 @@ void _check_al_error(const char *file, int line)
 			printf("%s\n", message);
 			strncpy(last_error, message, sizeof(last_error));
 		}
-		err = alGetError();
+		err = alwGetError();
 		got_error = 1;
 	}
 	if(got_error)
@@ -74,32 +72,34 @@ void _check_al_error(const char *file, int line)
 
 void c_openal_init(c_openal_t *self)
 {
-	self->device = alcOpenDevice(NULL);
+	if (!alwcOpenDevice)
+		alw_init();
+	self->device = alwcOpenDevice(NULL);
 	if(!self->device)
 	{
 		printf("Could not open al device.\n");
 		return;
 	}
 
-	self->context = alcCreateContext(self->device, NULL);
-	if (!alcMakeContextCurrent(self->context))
+	self->context = alwcCreateContext(self->device, NULL);
+	if (!alwcMakeContextCurrent(self->context))
 	{
 		printf("Could not create al context.\n");
 		return;
 	}
 
-	alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED);
+	alwDistanceModel(AL_INVERSE_DISTANCE_CLAMPED);
 
 #ifndef WIN32
 #ifndef __EMSCRIPTEN__
-	if(!alcIsExtensionPresent(self->device, "ALC_SOFT_HRTF"))
+	if(!alwcIsExtensionPresent(self->device, "ALC_SOFT_HRTF"))
 	{
 		fprintf(stderr, "Error: ALC_SOFT_HRTF not supported\n");
 		exit(1);
 	}
-#define LOAD_PROC(d, x)  ((x) = alcGetProcAddress((d), #x))
-    LOAD_PROC(self->device, alcGetStringiSOFT);
-    LOAD_PROC(self->device, alcResetDeviceSOFT);
+#define LOAD_PROC(d, x)  ((x) = alwcGetProcAddress((d), #x))
+    LOAD_PROC(self->device, alwcGetStringiSOFT);
+    LOAD_PROC(self->device, alwcResetDeviceSOFT);
 #undef LOAD_PROC
 
 	/* Enumerate available HRTFs, and reset the device using one. */
@@ -108,7 +108,7 @@ void c_openal_init(c_openal_t *self)
 	const char *hrtfname = NULL;
 	ALCint hrtf_state;
 
-    alcGetIntegerv(self->device, ALC_NUM_HRTF_SPECIFIERS_SOFT, 1, &num_hrtf);
+    alwcGetIntegerv(self->device, ALC_NUM_HRTF_SPECIFIERS_SOFT, 1, &num_hrtf);
 
     if(!num_hrtf) printf("No HRTFs found\n");
     else
@@ -120,7 +120,7 @@ void c_openal_init(c_openal_t *self)
         printf("Available HRTFs:\n");
         for(i = 0; i < num_hrtf; i++)
         {
-            const ALCchar *name = alcGetStringiSOFT(self->device, ALC_HRTF_SPECIFIER_SOFT, i);
+            const ALCchar *name = alwcGetStringiSOFT(self->device, ALC_HRTF_SPECIFIER_SOFT, i);
             printf("    %d: %s\n", i, name);
 
             if(hrtfname && strcmp(name, hrtfname) == 0) index = i;
@@ -142,14 +142,14 @@ void c_openal_init(c_openal_t *self)
         }
         attr[i] = 0;
 
-        if(!alcResetDeviceSOFT(self->device, attr))
-            printf("Failed to reset device: %s\n", alcGetString(self->device, alcGetError(self->device)));
+        if(!alwcResetDeviceSOFT(self->device, attr))
+            printf("Failed to reset device: %s\n", alwcGetString(self->device, alwcGetError(self->device)));
 	}
-	alcGetIntegerv(self->device, ALC_HRTF_SOFT, 1, &hrtf_state);
+	alwcGetIntegerv(self->device, ALC_HRTF_SOFT, 1, &hrtf_state);
 	if(!hrtf_state) printf("HRTF not enabled!\n");
 	else
 	{
-		const ALchar *name = alcGetString(self->device, ALC_HRTF_SPECIFIER_SOFT);
+		const ALchar *name = alwcGetString(self->device, ALC_HRTF_SPECIFIER_SOFT);
 		printf("HRTF enabled, using %s\n", name);
 	}
 #endif
@@ -167,9 +167,9 @@ c_openal_t *c_openal_new()
 
 void c_openal_destroy(c_openal_t *self)
 {
-	alcMakeContextCurrent(NULL);
-	alcDestroyContext(self->context);
-	alcCloseDevice(self->device);
+	alwcMakeContextCurrent(NULL);
+	alwcDestroyContext(self->context);
+	alwcCloseDevice(self->device);
 }
 
 void ct_openal(ct_t *self)
