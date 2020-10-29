@@ -1,5 +1,5 @@
-#include <windows.h>
 #include <AL/alc.h>
+#include <AL/alext.h>
 #include <AL/al.h>
 
 void alw_init(void);
@@ -140,4 +140,3 @@ extern  void        (*alwcProcessContext)(ALCcontext *context);
 extern  void        (*alwcProcessContext)(ALCcontext *context);
 extern  void        (*alwcProcessContext)(ALCcontext *context);
 extern  void        (*alwcSuspendContext)(ALCcontext *context);
-extern const ALchar* (*alwsoft_get_version)(void);

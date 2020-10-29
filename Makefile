@@ -8,18 +8,18 @@ emscripten: AR = emar
 
 DIR = build
 
-SRCS = openal.c sound.c speaker.c listener.c
+SRCS = openal.c sound.c speaker.c listener.c alw.c
 
 DEPS = -lopenal
 DEPS_EMS = -lopenal
 
-PLUGIN_SAUCES = speaker.png
+PLUGIN_SAUCES = speaker.png $(DIR)/libopenal.so
 
 OBJS_REL = $(patsubst %.c, $(DIR)/%.o, $(SRCS))
 OBJS_DEB = $(patsubst %.c, $(DIR)/%.debug.o, $(SRCS))
 OBJS_EMS = $(patsubst %.c, $(DIR)/%.emscripten.o, $(SRCS))
 
-CFLAGS = $(shell pkg-config openal --cflags) -I../candle \
+CFLAGS = -Iopenal-soft/include -I../candle \
 		 -Wuninitialized -Wno-unused-function $(PARENTCFLAGS)
 
 CFLAGS_REL = $(CFLAGS) -O3 -DTHREADED
@@ -36,7 +36,7 @@ CFLAGS_EMS = $(CFLAGS) -s USE_GLFW=3 -s ALLOW_MEMORY_GROWTH=1 -s USE_WEBGL2=1 \
 all: $(DIR)/libs
 	echo $(PLUGIN_SAUCES) > $(DIR)/res
 
-$(DIR)/libs: $(DIR)/export.a
+$(DIR)/libs: $(DIR)/export.a $(DIR)/libopenal.so
 	echo $(DEPS) openal.candle/$< > $@
 
 $(DIR)/export.a: init $(OBJS_REL)
@@ -50,7 +50,7 @@ $(DIR)/%.o: %.c
 debug: $(DIR)/libs_debug
 	echo $(PLUGIN_SAUCES) > $(DIR)/res
 
-$(DIR)/libs_debug: $(DIR)/export_debug.a
+$(DIR)/libs_debug: $(DIR)/export_debug.a $(DIR)/libopenal.so
 	echo $(DEPS) openal.candle/$< > $@
 
 $(DIR)/export_debug.a: init $(OBJS_DEB)
@@ -75,8 +75,15 @@ $(DIR)/%.emscripten.o: %.c
 
 ##############################################################################
 
+$(DIR)/libopenal.so:
+	cmake -B $(DIR)/alsoft openal-soft
+	cmake --build $(DIR)/alsoft --config Release
+	cp $(DIR)/alsoft/libopenal.so $(DIR)
+
 init:
 	mkdir -p $(DIR)
+	rm -f $(DIR)/libs
+	rm -f $(DIR)/res
 
 ##############################################################################
 

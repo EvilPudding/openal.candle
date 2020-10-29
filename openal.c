@@ -10,17 +10,8 @@
 
 #include "alw.h"
 
-#if !defined(__EMSCRIPTEN__) && !defined(WIN32)
-#include <AL/alext.h>
-#endif
-
-//static LPALCGETSTRINGISOFT alcGetStringiSOFT;
-//static LPALCRESETDEVICESOFT alcResetDeviceSOFT;
-
-#if !defined(__EMSCRIPTEN__) && !defined(_WIN32)
 static LPALCGETSTRINGISOFT alcGetStringiSOFT;
 static LPALCRESETDEVICESOFT alcResetDeviceSOFT;
-#endif
 
 void *sound_loader(const char *bytes, size_t bytes_num, const char *name,
                    uint32_t ext)
@@ -98,8 +89,8 @@ void c_openal_init(c_openal_t *self)
 		exit(1);
 	}
 #define LOAD_PROC(d, x)  ((x) = alwcGetProcAddress((d), #x))
-    LOAD_PROC(self->device, alwcGetStringiSOFT);
-    LOAD_PROC(self->device, alwcResetDeviceSOFT);
+    LOAD_PROC(self->device, alcGetStringiSOFT);
+    LOAD_PROC(self->device, alcResetDeviceSOFT);
 #undef LOAD_PROC
 
 	/* Enumerate available HRTFs, and reset the device using one. */
@@ -120,7 +111,7 @@ void c_openal_init(c_openal_t *self)
         printf("Available HRTFs:\n");
         for(i = 0; i < num_hrtf; i++)
         {
-            const ALCchar *name = alwcGetStringiSOFT(self->device, ALC_HRTF_SPECIFIER_SOFT, i);
+            const ALCchar *name = alcGetStringiSOFT(self->device, ALC_HRTF_SPECIFIER_SOFT, i);
             printf("    %d: %s\n", i, name);
 
             if(hrtfname && strcmp(name, hrtfname) == 0) index = i;
@@ -142,7 +133,7 @@ void c_openal_init(c_openal_t *self)
         }
         attr[i] = 0;
 
-        if(!alwcResetDeviceSOFT(self->device, attr))
+        if(!alcResetDeviceSOFT(self->device, attr))
             printf("Failed to reset device: %s\n", alwcGetString(self->device, alwcGetError(self->device)));
 	}
 	alwcGetIntegerv(self->device, ALC_HRTF_SOFT, 1, &hrtf_state);
