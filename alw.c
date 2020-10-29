@@ -7,9 +7,6 @@
 #endif
 #include "../candle/systems/sauces.h"
 
-#define AL_ALEXT_PROTOTYPES
-#include <AL/efx.h>
-
 
 void (*alwAuxiliaryEffectSlotf)(ALuint effectslot, ALenum param, ALfloat value);
 void (*alwAuxiliaryEffectSlotfv)(ALuint effectslot, ALenum param, const ALfloat *pflValues);

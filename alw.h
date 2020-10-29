@@ -1,6 +1,9 @@
+
+#define AL_ALEXT_PROTOTYPES
 #include <AL/alc.h>
 #include <AL/alext.h>
 #include <AL/al.h>
+#include <AL/efx.h>
 
 void alw_init(void);
 
