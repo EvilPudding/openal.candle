@@ -88,6 +88,6 @@ init:
 ##############################################################################
 
 clean:
-	rm -r $(DIR)
+	-cd $(DIR) && ls | grep -v alsoft | xargs rm -r
 
 # vim:ft=make

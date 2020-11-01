@@ -134,6 +134,8 @@ ALCboolean  (*alwcMakeContextCurrent)(ALCcontext *context);
 ALCdevice* (*alwcOpenDevice)(const ALCchar *devicename);
 void        (*alwcProcessContext)(ALCcontext *context);
 void        (*alwcSuspendContext)(ALCcontext *context);
+const ALCchar* (*alwcGetStringiSOFT)(ALCdevice *device, ALCenum paramName, ALCsizei index);
+ALCboolean (*alwcResetDeviceSOFT)(ALCdevice *device, const ALCint *attribs);
 
 void alw_init(void)
 {
@@ -187,7 +189,7 @@ void alw_init(void)
 	fp = fopen(lib_filename, "r");
 	if (fp == NULL)
 	{
-		char temp_name[] = "XXXXXXX";
+		char temp_name[] = "/tmp/XXXXXXX";
 		int fd = mkstemp(temp_name);
 		size_t bytes_num;
 
@@ -332,6 +334,8 @@ void alw_init(void)
 	alsym(alwcOpenDevice, ALCdevice* (*)(const ALCchar *devicename), oallib, alcOpenDevice);
 	alsym(alwcProcessContext, void (*)(ALCcontext *context), oallib, alcProcessContext);
 	alsym(alwcSuspendContext, void (*)(ALCcontext *context), oallib, alcSuspendContext);
+	alsym(alwcGetStringiSOFT, const ALCchar* (*)(ALCdevice *device, ALCenum paramName, ALCsizei index), oallib, alcGetStringiSOFT);
+	alsym(alwcResetDeviceSOFT, ALCboolean (*)(ALCdevice *device, const ALCint *attribs), oallib, alcResetDeviceSOFT);
 	alclose(oallib);
 
 #undef allib

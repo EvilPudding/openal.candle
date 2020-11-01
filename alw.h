@@ -143,3 +143,5 @@ extern  void        (*alwcProcessContext)(ALCcontext *context);
 extern  void        (*alwcProcessContext)(ALCcontext *context);
 extern  void        (*alwcProcessContext)(ALCcontext *context);
 extern  void        (*alwcSuspendContext)(ALCcontext *context);
+extern  const ALCchar* (*alwcGetStringiSOFT)(ALCdevice *device, ALCenum paramName, ALCsizei index);
+extern  ALCboolean (*alwcResetDeviceSOFT)(ALCdevice *device, const ALCint *attribs);
