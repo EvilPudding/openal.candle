@@ -148,7 +148,7 @@ void alw_init(void)
 #define alsym(v, type, l, s) v = (type)s
 #define alclose(l)
 #else
-#define allib(l) dlopen(l, RTLD_NODELETE)
+#define allib(l) dlopen(l, RTLD_NOW | RTLD_NODELETE)
 #define alsym(v, type, l, s) v = (type)dlsym(l, #s)
 #define alclose(l)
 #endif
@@ -189,8 +189,8 @@ void alw_init(void)
 	fp = fopen(lib_filename, "r");
 	if (fp == NULL)
 	{
-		char temp_name[] = "/tmp/XXXXXXX";
-		int fd = mkstemp(temp_name);
+		char temp_name[] = "/tmp/XXXXXXX.so";
+		int fd = mkstemps(temp_name, 3);
 		size_t bytes_num;
 
 		resource_t *sauce = c_sauces_get_sauce(c_sauces(&SYS), sauce_handle(lib_filename));
@@ -202,8 +202,15 @@ void alw_init(void)
 			exit(1);
 		}
 		close(fd);
+		oallib = allib(temp_name);
 	}
-	oallib = allib(lib_filename);
+	else
+	{
+		oallib = allib(lib_filename);
+	}
+	char *err = dlerror();
+	if (err)
+		puts(err);
 #else
 	void *oallib;
 #endif

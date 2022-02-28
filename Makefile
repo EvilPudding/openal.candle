@@ -10,7 +10,6 @@ DIR = build
 
 SRCS = openal.c sound.c speaker.c listener.c alw.c
 
-DEPS = -lopenal
 DEPS_EMS = -lopenal
 
 PLUGIN_SAUCES = speaker.png $(DIR)/libopenal.so
@@ -37,7 +36,7 @@ all: $(DIR)/libs
 	echo $(PLUGIN_SAUCES) > $(DIR)/res
 
 $(DIR)/libs: $(DIR)/export.a $(DIR)/libopenal.so
-	echo $(DEPS) openal.candle/$< > $@
+	echo openal.candle/$< > $@
 
 $(DIR)/export.a: init $(OBJS_REL)
 	$(AR) rs $(DIR)/export.a $(OBJS_REL)
@@ -51,7 +50,7 @@ debug: $(DIR)/libs_debug
 	echo $(PLUGIN_SAUCES) > $(DIR)/res
 
 $(DIR)/libs_debug: $(DIR)/export_debug.a $(DIR)/libopenal.so
-	echo $(DEPS) openal.candle/$< > $@
+	echo openal.candle/$< > $@
 
 $(DIR)/export_debug.a: init $(OBJS_DEB)
 	$(AR) rs $(DIR)/export_debug.a $(OBJS_DEB)
